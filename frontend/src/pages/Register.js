@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   Container,
   Typography,
@@ -12,8 +12,9 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 
-function Register({ userType }) {
+function Register() {
   const navigate = useNavigate();
+  const { userType } = useParams();
   const [formData, setFormData] = useState({
     name: '',
     username: '',
@@ -45,6 +46,24 @@ function Register({ userType }) {
       setError('Password must be at least 6 characters long');
       return false;
     }
+    if (!formData.email.includes('@')) {
+      setError('Please enter a valid email address');
+      return false;
+    }
+    if (!formData.phone.match(/^\d{10}$/)) {
+      setError('Please enter a valid 10-digit phone number');
+      return false;
+    }
+    if (userType === 'shelter') {
+      if (!formData.location.trim()) {
+        setError('Location is required for shelters');
+        return false;
+      }
+      if (!formData.description.trim()) {
+        setError('Description is required for shelters');
+        return false;
+      }
+    }
     return true;
   };
 
@@ -59,30 +78,43 @@ function Register({ userType }) {
     setLoading(true);
 
     try {
-      const response = await axios.post(`http://localhost:8081/api/auth/register/${userType}`, {
-        name: formData.name,
-        username: formData.username,
-        email: formData.email,
+      const requestData = {
+        name: formData.name.trim(),
+        username: formData.username.trim(),
+        email: formData.email.trim(),
         password: formData.password,
         phone: formData.phone,
+        role: userType === 'shelter' ? 'SHELTER' : 'ADOPTER',
         ...(userType === 'shelter' && {
-          location: formData.location,
-          description: formData.description,
+          location: formData.location.trim(),
+          description: formData.description.trim(),
         }),
-      });
+      };
 
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('userType', userType);
-      localStorage.setItem('userId', response.data.userId);
+      const response = await axios.post(`http://localhost:8082/api/auth/register/${userType}`, requestData);
 
-      // Redirect based on user type
-      if (userType === 'shelter') {
-        navigate('/shelter/dashboard');
+      if (response.data && response.data.token) {
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('userType', userType);
+        localStorage.setItem('userId', response.data.userId);
+
+        // Redirect based on user type
+        if (userType === 'shelter') {
+          navigate('/shelter/dashboard');
+        } else {
+          navigate('/home');
+        }
       } else {
-        navigate('/home');
+        setError('Invalid response from server');
       }
     } catch (error) {
-      setError(error.response?.data?.message || 'An error occurred during registration');
+      if (error.response?.data?.message) {
+        setError(error.response.data.message);
+      } else if (error.response?.data?.error) {
+        setError(error.response.data.error);
+      } else {
+        setError('An error occurred during registration');
+      }
     } finally {
       setLoading(false);
     }
@@ -111,6 +143,7 @@ function Register({ userType }) {
                 value={formData.name}
                 onChange={handleChange}
                 required
+                helperText={userType === 'shelter' ? 'Enter your shelter name' : 'Enter your full name'}
               />
             </Grid>
 
@@ -122,6 +155,7 @@ function Register({ userType }) {
                 value={formData.username}
                 onChange={handleChange}
                 required
+                helperText="Choose a unique username"
               />
             </Grid>
 
@@ -134,6 +168,7 @@ function Register({ userType }) {
                 value={formData.email}
                 onChange={handleChange}
                 required
+                helperText="Enter a valid email address"
               />
             </Grid>
 
@@ -145,6 +180,7 @@ function Register({ userType }) {
                 value={formData.phone}
                 onChange={handleChange}
                 required
+                helperText="Enter 10-digit phone number"
               />
             </Grid>
 
@@ -158,6 +194,7 @@ function Register({ userType }) {
                     value={formData.location}
                     onChange={handleChange}
                     required
+                    helperText="Enter your shelter's address"
                   />
                 </Grid>
 
@@ -171,6 +208,7 @@ function Register({ userType }) {
                     multiline
                     rows={4}
                     required
+                    helperText="Describe your shelter and its mission"
                   />
                 </Grid>
               </>
@@ -185,6 +223,7 @@ function Register({ userType }) {
                 value={formData.password}
                 onChange={handleChange}
                 required
+                helperText="Minimum 6 characters"
               />
             </Grid>
 
@@ -197,6 +236,7 @@ function Register({ userType }) {
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 required
+                helperText="Re-enter your password"
               />
             </Grid>
 

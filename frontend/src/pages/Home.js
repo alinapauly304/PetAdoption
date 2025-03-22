@@ -19,10 +19,14 @@ function Home() {
   useEffect(() => {
     const fetchFeaturedPets = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/pets');
+        console.log('Fetching featured pets...');
+        const response = await axios.get('http://localhost:8082/api/pets');
+        console.log('Featured pets response:', response.data);
         setFeaturedPets(response.data.slice(0, 3)); // Show only first 3 pets
       } catch (error) {
         console.error('Error fetching featured pets:', error);
+        console.error('Error response:', error.response);
+        console.error('Error message:', error.message);
       }
     };
 

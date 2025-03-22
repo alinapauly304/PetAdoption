@@ -36,6 +36,7 @@ CREATE TABLE pets (
     age INT NOT NULL,
     gender VARCHAR(20) NOT NULL,
     image_url VARCHAR(255) NOT NULL,
+    description TEXT,
     shelter_id BIGINT NOT NULL,
     FOREIGN KEY (shelter_id) REFERENCES shelters(shelter_id)
 );

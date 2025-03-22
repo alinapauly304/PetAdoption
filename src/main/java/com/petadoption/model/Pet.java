@@ -5,6 +5,7 @@ import lombok.Data;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Data
 @Entity
@@ -33,12 +34,15 @@ public class Pet {
     @Column(nullable = false)
     private String imageUrl;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "shelter_id", nullable = false)
-    @JsonBackReference
+    @JsonIgnoreProperties({"password", "adoptionRequests", "createdAt", "updatedAt", "role"})
     private Shelter shelter;
 
     @OneToMany(mappedBy = "pet", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+    @JsonIgnoreProperties("pet")
     private List<AdoptionRequest> adoptionRequests;
 } 

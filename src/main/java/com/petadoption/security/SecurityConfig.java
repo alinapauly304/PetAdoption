@@ -40,8 +40,8 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**", "/api/auth/register/**", "/api/auth/login/**", "/error").permitAll()
-                .requestMatchers("/api/pets/**").permitAll()
+                .requestMatchers("/api/auth/**", "/api/auth/register/**", "/api/auth/login/**", "/error", "/api/upload/**", "/uploads/**", "/api/pets", "/api/shelters").permitAll()
+                .requestMatchers("/api/pets/**", "/api/shelters/**").permitAll()
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session

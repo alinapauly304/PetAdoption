@@ -21,7 +21,7 @@ function Shelters() {
   useEffect(() => {
     const fetchShelters = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/shelters');
+        const response = await axios.get('http://localhost:8082/api/shelters');
         setShelters(response.data);
         setFilteredShelters(response.data);
       } catch (error) {

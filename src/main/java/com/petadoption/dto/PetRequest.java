@@ -26,6 +26,8 @@ public class PetRequest {
     @NotBlank(message = "Image URL is required")
     private String imageUrl;
 
+    private String description;
+
     @NotNull(message = "Shelter ID is required")
     private Long shelterId;
 } 

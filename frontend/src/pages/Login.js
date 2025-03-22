@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import {
   Container,
   Typography,
@@ -11,9 +11,9 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 
-function Login({ userType }) {
+function Login() {
   const navigate = useNavigate();
-  const location = useLocation();
+  const { userType } = useParams();
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -34,7 +34,7 @@ function Login({ userType }) {
     setLoading(true);
 
     try {
-      const response = await axios.post(`http://localhost:8081/api/auth/login/${userType}`, formData);
+      const response = await axios.post(`http://localhost:8082/api/auth/login/${userType}`, formData);
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('userType', userType);
       localStorage.setItem('userId', response.data.userId);
@@ -108,7 +108,7 @@ function Login({ userType }) {
             Don't have an account?{' '}
             <Button
               color="primary"
-              onClick={() => navigate('/register')}
+              onClick={() => navigate(`/register/${userType}`)}
               sx={{ textTransform: 'none' }}
             >
               Register here

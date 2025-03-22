@@ -68,33 +68,53 @@ public class AuthService {
     }
 
     public AuthResponse registerShelter(RegisterRequest request) {
-        if (shelterRepository.existsByUsername(request.getUsername())) {
-            throw new RuntimeException("Username already exists");
+        try {
+            System.out.println("Starting shelter registration process...");
+            System.out.println("Checking if username exists: " + request.getUsername());
+            
+            if (shelterRepository.existsByUsername(request.getUsername())) {
+                System.out.println("Username already exists: " + request.getUsername());
+                throw new RuntimeException("Username already exists");
+            }
+            
+            System.out.println("Checking if email exists: " + request.getEmail());
+            if (shelterRepository.existsByEmail(request.getEmail())) {
+                System.out.println("Email already exists: " + request.getEmail());
+                throw new RuntimeException("Email already exists");
+            }
+
+            System.out.println("Creating new shelter object...");
+            Shelter shelter = new Shelter();
+            shelter.setName(request.getName());
+            shelter.setUsername(request.getUsername());
+            shelter.setEmail(request.getEmail());
+            shelter.setPhone(request.getPhone());
+            shelter.setPassword(passwordEncoder.encode(request.getPassword()));
+            shelter.setLocation(request.getLocation());
+            shelter.setDescription(request.getDescription());
+            shelter.setRole(UserRole.SHELTER);
+
+            System.out.println("Saving shelter to database...");
+            shelter = shelterRepository.save(shelter);
+            System.out.println("Shelter saved successfully with ID: " + shelter.getShelterId());
+
+            System.out.println("Creating user details for JWT...");
+            UserDetails userDetails = new User(
+                    shelter.getUsername(),
+                    shelter.getPassword(),
+                    Collections.singletonList(new SimpleGrantedAuthority("ROLE_SHELTER"))
+            );
+
+            System.out.println("Generating JWT token...");
+            String token = jwtUtil.generateToken(userDetails);
+            
+            System.out.println("Registration completed successfully");
+            return new AuthResponse(token, shelter.getShelterId(), shelter.getUsername(), UserRole.SHELTER);
+        } catch (Exception e) {
+            System.err.println("Error in registerShelter: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
         }
-        if (shelterRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already exists");
-        }
-
-        Shelter shelter = new Shelter();
-        shelter.setName(request.getName());
-        shelter.setUsername(request.getUsername());
-        shelter.setEmail(request.getEmail());
-        shelter.setPhone(request.getPhone());
-        shelter.setPassword(passwordEncoder.encode(request.getPassword()));
-        shelter.setLocation(request.getLocation());
-        shelter.setDescription(request.getDescription());
-        shelter.setRole(UserRole.SHELTER);
-
-        shelter = shelterRepository.save(shelter);
-
-        UserDetails userDetails = new User(
-                shelter.getUsername(),
-                shelter.getPassword(),
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_SHELTER"))
-        );
-
-        String token = jwtUtil.generateToken(userDetails);
-        return new AuthResponse(token, shelter.getShelterId(), shelter.getUsername(), UserRole.SHELTER);
     }
 
     public AuthResponse loginAdopter(LoginRequest request) {

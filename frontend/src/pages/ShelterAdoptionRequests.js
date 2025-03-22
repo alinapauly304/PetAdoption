@@ -14,6 +14,7 @@ import {
   DialogActions,
   TextField,
   Alert,
+  CircularProgress,
 } from '@mui/material';
 import axios from 'axios';
 
@@ -24,6 +25,7 @@ function ShelterAdoptionRequests() {
   const [response, setResponse] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
 
   useEffect(() => {
     fetchRequests();
@@ -33,12 +35,24 @@ function ShelterAdoptionRequests() {
     try {
       const token = localStorage.getItem('token');
       const shelterId = localStorage.getItem('userId');
-      const response = await axios.get(`http://localhost:8081/api/adoption-requests/shelter/${shelterId}`, {
+      
+      if (!token || !shelterId) {
+        setError('Please log in to view requests');
+        return;
+      }
+
+      const response = await axios.get(`http://localhost:8080/api/adoption-requests/shelter/${shelterId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setRequests(response.data);
     } catch (error) {
-      console.error('Error fetching requests:', error);
+      if (error.response?.status === 401) {
+        setError('Please log in to view requests');
+      } else {
+        setError('Failed to fetch adoption requests. Please try again.');
+      }
+    } finally {
+      setFetching(false);
     }
   };
 
@@ -56,16 +70,26 @@ function ShelterAdoptionRequests() {
   };
 
   const handleSubmit = async (status) => {
+    if (!response.trim()) {
+      setError('Please provide a response message');
+      return;
+    }
+
     setLoading(true);
     setError('');
 
     try {
       const token = localStorage.getItem('token');
+      if (!token) {
+        setError('Please log in to respond to requests');
+        return;
+      }
+
       await axios.put(
-        `http://localhost:8081/api/adoption-requests/${selectedRequest.requestId}/status`,
+        `http://localhost:8080/api/adoption-requests/${selectedRequest.requestId}/status`,
         {
           status,
-          response,
+          response: response.trim(),
         },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -74,7 +98,11 @@ function ShelterAdoptionRequests() {
       fetchRequests();
       handleClose();
     } catch (error) {
-      setError(error.response?.data?.message || 'An error occurred while updating the request');
+      if (error.response?.status === 401) {
+        setError('Please log in to respond to requests');
+      } else {
+        setError(error.response?.data?.message || 'Failed to update request. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -86,10 +114,20 @@ function ShelterAdoptionRequests() {
         return 'success';
       case 'REJECTED':
         return 'error';
-      default:
+      case 'PENDING':
         return 'warning';
+      default:
+        return 'default';
     }
   };
+
+  if (fetching) {
+    return (
+      <Container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+        <CircularProgress />
+      </Container>
+    );
+  }
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -97,59 +135,66 @@ function ShelterAdoptionRequests() {
         Adoption Requests
       </Typography>
 
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
+
       <Grid container spacing={4}>
-        {requests.map((request) => (
-          <Grid item key={request.requestId} xs={12}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                  <Typography variant="h6" component="h2">
-                    Request for {request.pet?.name}
-                  </Typography>
-                  <Chip
-                    label={request.status}
-                    color={getStatusColor(request.status)}
-                    size="small"
-                  />
-                </Box>
-                
-                <Typography color="text.secondary" gutterBottom>
-                  From: {request.adopter?.name}
-                </Typography>
-                <Typography variant="body2" paragraph>
-                  Contact: {request.adopter?.email} | {request.adopter?.phone}
-                </Typography>
-                <Typography variant="body2" paragraph>
-                  Message: {request.message}
-                </Typography>
-                {request.response && (
-                  <Typography variant="body2" color="text.secondary">
-                    Your Response: {request.response}
-                  </Typography>
-                )}
-
-                {request.status === 'PENDING' && (
-                  <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={() => handleRespond(request)}
-                    >
-                      Respond
-                    </Button>
-                  </Box>
-                )}
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-
-        {requests.length === 0 && (
+        {requests.length === 0 ? (
           <Grid item xs={12}>
             <Typography variant="h6" align="center" color="text.secondary">
               No adoption requests found
             </Typography>
           </Grid>
+        ) : (
+          requests.map((request) => (
+            <Grid item key={request.requestId} xs={12}>
+              <Card>
+                <CardContent>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                    <Typography variant="h6" component="h2">
+                      Request for {request.pet?.name}
+                    </Typography>
+                    <Chip
+                      label={request.status}
+                      color={getStatusColor(request.status)}
+                      size="small"
+                    />
+                  </Box>
+                  
+                  <Typography color="text.secondary" gutterBottom>
+                    From: {request.adopter?.name}
+                  </Typography>
+                  <Typography variant="body2" paragraph>
+                    Contact: {request.adopter?.email} | {request.adopter?.phone}
+                  </Typography>
+                  <Typography variant="body2" paragraph>
+                    Message: {request.message}
+                  </Typography>
+                  {request.response && (
+                    <Typography variant="body2" color="text.secondary">
+                      Your Response: {request.response}
+                    </Typography>
+                  )}
+
+                  {request.status === 'PENDING' && (
+                    <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => handleRespond(request)}
+                        disabled={loading}
+                      >
+                        Respond
+                      </Button>
+                    </Box>
+                  )}
+                </CardContent>
+              </Card>
+            </Grid>
+          ))
         )}
       </Grid>
 
@@ -170,6 +215,7 @@ function ShelterAdoptionRequests() {
               multiline
               rows={4}
               required
+              helperText="Please provide a response message"
             />
           </Box>
         </DialogContent>

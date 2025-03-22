@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS})
@@ -22,8 +24,23 @@ public class AuthController {
     }
 
     @PostMapping("/register/shelter")
-    public ResponseEntity<AuthResponse> registerShelter(@RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(authService.registerShelter(request));
+    public ResponseEntity<?> registerShelter(@RequestBody RegisterRequest request) {
+        try {
+            System.out.println("Received shelter registration request: " + request);
+            AuthResponse response = authService.registerShelter(request);
+            System.out.println("Successfully registered shelter: " + response);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            System.err.println("Error registering shelter: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.badRequest()
+                .body(Map.of("message", e.getMessage()));
+        } catch (Exception e) {
+            System.err.println("Unexpected error registering shelter: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.internalServerError()
+                .body(Map.of("message", "An unexpected error occurred during registration"));
+        }
     }
 
     @PostMapping("/login/adopter")

@@ -1,126 +1,173 @@
 import React from 'react';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   AppBar,
   Toolbar,
   Typography,
   Button,
   Box,
-  IconButton,
-  Menu,
-  MenuItem,
+  keyframes,
 } from '@mui/material';
-import AccountCircle from '@mui/icons-material/AccountCircle';
-import { isAuthenticated, authAPI } from '../utils/api';
+
+const bounce = keyframes`
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+`;
+
+const pulse = keyframes`
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+`;
 
 function Navbar() {
   const navigate = useNavigate();
-  const [anchorEl, setAnchorEl] = React.useState(null);
-
-  const handleMenu = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleLogout = () => {
-    authAPI.logout();
-    handleClose();
-  };
-
-  const handleProfile = () => {
-    navigate('/profile');
-    handleClose();
-  };
+  const userType = localStorage.getItem('userType');
+  const isAuthenticated = !!localStorage.getItem('token');
 
   return (
-    <AppBar position="static">
+    <AppBar position="static" elevation={0}>
       <Toolbar>
         <Typography
           variant="h6"
-          component={RouterLink}
-          to="/"
+          component="div"
           sx={{
             flexGrow: 1,
-            textDecoration: 'none',
-            color: 'inherit',
-            fontWeight: 'bold',
+            animation: `${bounce} 2s ease-in-out infinite`,
+            cursor: 'pointer',
           }}
+          onClick={() => navigate('/')}
         >
-          Pet Adoption
+          PetConnect
         </Typography>
-
         <Box sx={{ display: 'flex', gap: 2 }}>
-          <Button
-            color="inherit"
-            component={RouterLink}
-            to="/pets"
-          >
-            Pets
-          </Button>
-          <Button
-            color="inherit"
-            component={RouterLink}
-            to="/shelters"
-          >
-            Shelters
-          </Button>
-
-          {isAuthenticated() ? (
+          {!isAuthenticated ? (
             <>
               <Button
                 color="inherit"
-                component={RouterLink}
-                to="/adoption-requests"
+                onClick={() => navigate('/register-choice')}
+                sx={{
+                  '&:hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  },
+                }}
               >
-                Adoption Requests
+                Register
               </Button>
-              <IconButton
-                size="large"
-                aria-label="account of current user"
-                aria-controls="menu-appbar"
-                aria-haspopup="true"
-                onClick={handleMenu}
-                color="inherit"
-              >
-                <AccountCircle />
-              </IconButton>
-              <Menu
-                id="menu-appbar"
-                anchorEl={anchorEl}
-                anchorOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
-                keepMounted
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
-                open={Boolean(anchorEl)}
-                onClose={handleClose}
-              >
-                <MenuItem onClick={handleProfile}>Profile</MenuItem>
-                <MenuItem onClick={handleLogout}>Logout</MenuItem>
-              </Menu>
-            </>
-          ) : (
-            <>
               <Button
                 color="inherit"
-                component={RouterLink}
-                to="/login"
+                onClick={() => navigate('/register-choice')}
+                sx={{
+                  '&:hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  },
+                }}
               >
                 Login
               </Button>
+            </>
+          ) : (
+            <>
+              {userType === 'SHELTER' && (
+                <>
+                  <Button
+                    color="inherit"
+                    onClick={() => navigate('/shelter/dashboard')}
+                    sx={{
+                      '&:hover': {
+                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                      },
+                    }}
+                  >
+                    Dashboard
+                  </Button>
+                  <Button
+                    color="inherit"
+                    onClick={() => navigate('/shelter/pets')}
+                    sx={{
+                      '&:hover': {
+                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                      },
+                    }}
+                  >
+                    Manage Pets
+                  </Button>
+                  <Button
+                    color="inherit"
+                    onClick={() => navigate('/shelter/requests')}
+                    sx={{
+                      '&:hover': {
+                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                      },
+                    }}
+                  >
+                    Requests
+                  </Button>
+                </>
+              )}
+              {userType === 'ADOPTER' && (
+                <>
+                  <Button
+                    color="inherit"
+                    onClick={() => navigate('/home')}
+                    sx={{
+                      '&:hover': {
+                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                      },
+                    }}
+                  >
+                    Home
+                  </Button>
+                  <Button
+                    color="inherit"
+                    onClick={() => navigate('/pets')}
+                    sx={{
+                      '&:hover': {
+                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                      },
+                    }}
+                  >
+                    Browse Pets
+                  </Button>
+                  <Button
+                    color="inherit"
+                    onClick={() => navigate('/my-requests')}
+                    sx={{
+                      '&:hover': {
+                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                      },
+                    }}
+                  >
+                    My Requests
+                  </Button>
+                </>
+              )}
               <Button
                 color="inherit"
-                component={RouterLink}
-                to="/register"
+                onClick={() => {
+                  localStorage.removeItem('token');
+                  localStorage.removeItem('userType');
+                  localStorage.removeItem('userId');
+                  navigate('/');
+                }}
+                sx={{
+                  animation: `${pulse} 2s ease-in-out infinite`,
+                  '&:hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  },
+                }}
               >
-                Register
+                Logout
               </Button>
             </>
           )}

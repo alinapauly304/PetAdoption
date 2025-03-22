@@ -37,7 +37,7 @@ function ShelterDashboard() {
               cursor: 'pointer',
               '&:hover': { bgcolor: 'action.hover' },
             }}
-            onClick={() => navigate('/shelter/add-pet')}
+            onClick={() => navigate('/shelter/pets/add')}
           >
             <AddIcon sx={{ fontSize: 80, color: 'primary.main', mb: 3 }} />
             <Typography variant="h4" gutterBottom>
@@ -87,7 +87,7 @@ function ShelterDashboard() {
               cursor: 'pointer',
               '&:hover': { bgcolor: 'action.hover' },
             }}
-            onClick={() => navigate('/shelter/adoption-requests')}
+            onClick={() => navigate('/shelter/requests')}
           >
             <ListAltIcon sx={{ fontSize: 80, color: 'primary.main', mb: 3 }} />
             <Typography variant="h4" gutterBottom>

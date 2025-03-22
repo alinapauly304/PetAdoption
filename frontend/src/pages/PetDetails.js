@@ -16,6 +16,7 @@ import {
   DialogContent,
   DialogActions,
   TextField,
+  Alert,
 } from '@mui/material';
 import axios from 'axios';
 
@@ -24,6 +25,8 @@ function PetDetails() {
   const navigate = useNavigate();
   const [pet, setPet] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [adoptionRequest, setAdoptionRequest] = useState({
     message: '',
   });
@@ -35,32 +38,67 @@ function PetDetails() {
         setPet(response.data);
       } catch (error) {
         console.error('Error fetching pet details:', error);
-        navigate('/pets');
+        setError('Failed to fetch pet details');
       }
     };
 
     fetchPet();
-  }, [id, navigate]);
+  }, [id]);
 
   const handleAdoptClick = () => {
+    const token = localStorage.getItem('token');
+    const userId = localStorage.getItem('userId');
+    
+    if (!token || !userId) {
+      setError('Please log in to request adoption');
+      navigate('/login');
+      return;
+    }
+    
     setOpenDialog(true);
   };
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
     setAdoptionRequest({ message: '' });
+    setError('');
+    setSuccess('');
   };
 
   const handleSubmitRequest = async () => {
     try {
-      await axios.post('http://localhost:8080/api/adoption-requests', {
+      const token = localStorage.getItem('token');
+      const userId = localStorage.getItem('userId');
+      
+      if (!token || !userId) {
+        setError('Please log in to request adoption');
+        navigate('/login');
+        return;
+      }
+
+      const response = await axios.post('http://localhost:8080/api/adoption-requests', {
         petId: id,
+        adopterId: parseInt(userId),
         message: adoptionRequest.message,
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
+
+      setSuccess('Adoption request submitted successfully!');
       handleCloseDialog();
-      // Show success message or redirect
+      setTimeout(() => {
+        navigate('/my-adoption-requests');
+      }, 1500);
     } catch (error) {
       console.error('Error submitting adoption request:', error);
+      if (error.response?.data?.message) {
+        setError(error.response.data.message);
+      } else {
+        setError('Failed to submit adoption request. Please try again.');
+      }
     }
   };
 
@@ -74,6 +112,17 @@ function PetDetails() {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
+      {success && (
+        <Alert severity="success" sx={{ mb: 2 }}>
+          {success}
+        </Alert>
+      )}
+      
       <Grid container spacing={4}>
         {/* Pet Image */}
         <Grid item xs={12} md={6}>
@@ -103,7 +152,7 @@ function PetDetails() {
             About {pet.name}
           </Typography>
           <Typography paragraph>
-            {pet.name} is a {pet.age}-year-old {pet.breed} {pet.type} looking for a loving home.
+            {pet.description || `${pet.name} is a ${pet.age}-year-old ${pet.breed} ${pet.type} looking for a loving home.`}
           </Typography>
 
           <Divider sx={{ my: 2 }} />

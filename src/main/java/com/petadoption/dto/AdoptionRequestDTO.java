@@ -7,4 +7,9 @@ import lombok.Data;
 public class AdoptionRequestDTO {
     @NotNull(message = "Pet ID is required")
     private Long petId;
+
+    @NotNull(message = "Adopter ID is required")
+    private Long adopterId;
+
+    private String message;
 } 

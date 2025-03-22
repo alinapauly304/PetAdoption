@@ -30,17 +30,35 @@ function Pets() {
   useEffect(() => {
     const fetchPets = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/pets');
+        console.log('Fetching all pets from API...');
+        const response = await axios.get('http://localhost:8082/api/pets');
+        console.log('API Response:', response);
+        console.log('Pets data:', response.data);
+        
+        if (!response.data || response.data.length === 0) {
+          console.log('No pets data received');
+          setPets([]);
+          setFilteredPets([]);
+          return;
+        }
+        
+        console.log('Setting pets data:', response.data);
         setPets(response.data);
         setFilteredPets(response.data);
         
         // Extract unique types and breeds
         const uniqueTypes = [...new Set(response.data.map(pet => pet.type))];
         const uniqueBreeds = [...new Set(response.data.map(pet => pet.breed))];
+        console.log('Unique types:', uniqueTypes);
+        console.log('Unique breeds:', uniqueBreeds);
         setTypes(uniqueTypes);
         setBreeds(uniqueBreeds);
       } catch (error) {
         console.error('Error fetching pets:', error);
+        console.error('Error response:', error.response);
+        console.error('Error message:', error.message);
+        setPets([]);
+        setFilteredPets([]);
       }
     };
 

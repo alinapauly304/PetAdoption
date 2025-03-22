@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.List;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Data
 @Entity
@@ -47,7 +47,7 @@ public class Shelter {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "shelter", cascade = CascadeType.ALL)
-    @JsonManagedReference
+    @JsonIgnoreProperties({"shelter", "adoptionRequests"})
     private List<Pet> pets;
 
     @PrePersist

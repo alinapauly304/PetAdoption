@@ -1,6 +1,7 @@
 C:\Users\alina\Downloads\PetAdoption\src\main\java\com\petadoption\controller\AdoptionRequestController.java
 C:\Users\alina\Downloads\PetAdoption\src\main\java\com\petadoption\dto\AuthResponse.java
 C:\Users\alina\Downloads\PetAdoption\src\main\java\com\petadoption\repository\AdopterRepository.java
+C:\Users\alina\Downloads\PetAdoption\src\main\java\com\petadoption\controller\FileUploadController.java
 C:\Users\alina\Downloads\PetAdoption\src\main\java\com\petadoption\dto\AdoptionRequestDTO.java
 C:\Users\alina\Downloads\PetAdoption\src\main\java\com\petadoption\dto\PetRequest.java
 C:\Users\alina\Downloads\PetAdoption\src\main\java\com\petadoption\security\SecurityConfig.java
@@ -13,14 +14,17 @@ C:\Users\alina\Downloads\PetAdoption\src\main\java\com\petadoption\security\JwtU
 C:\Users\alina\Downloads\PetAdoption\src\main\java\com\petadoption\model\RequestStatus.java
 C:\Users\alina\Downloads\PetAdoption\src\main\java\com\petadoption\repository\AdoptionRequestRepository.java
 C:\Users\alina\Downloads\PetAdoption\src\main\java\com\petadoption\model\Adopter.java
+C:\Users\alina\Downloads\PetAdoption\src\main\java\com\petadoption\config\WebConfig.java
 C:\Users\alina\Downloads\PetAdoption\src\main\java\com\petadoption\security\UserDetailsServiceImpl.java
 C:\Users\alina\Downloads\PetAdoption\src\main\java\com\petadoption\dto\LoginRequest.java
+C:\Users\alina\Downloads\PetAdoption\src\main\java\com\petadoption\dto\ErrorResponse.java
 C:\Users\alina\Downloads\PetAdoption\src\main\java\com\petadoption\service\PetService.java
 C:\Users\alina\Downloads\PetAdoption\src\main\java\com\petadoption\controller\AuthController.java
 C:\Users\alina\Downloads\PetAdoption\src\main\java\com\petadoption\repository\ShelterRepository.java
 C:\Users\alina\Downloads\PetAdoption\src\main\java\com\petadoption\service\AuthService.java
 C:\Users\alina\Downloads\PetAdoption\src\main\java\com\petadoption\dto\RegisterRequest.java
 C:\Users\alina\Downloads\PetAdoption\src\main\java\com\petadoption\model\Shelter.java
+C:\Users\alina\Downloads\PetAdoption\src\main\java\com\petadoption\service\FileUploadService.java
 C:\Users\alina\Downloads\PetAdoption\src\main\java\com\petadoption\controller\ShelterController.java
 C:\Users\alina\Downloads\PetAdoption\src\main\java\com\petadoption\model\UserRole.java
 C:\Users\alina\Downloads\PetAdoption\src\main\java\com\petadoption\controller\PetController.java

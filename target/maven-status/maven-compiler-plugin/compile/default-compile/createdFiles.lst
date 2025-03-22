@@ -6,7 +6,6 @@ com\petadoption\controller\AuthController.class
 com\petadoption\model\UserRole.class
 com\petadoption\repository\AdoptionRequestRepository.class
 com\petadoption\service\AdoptionRequestService.class
-application.properties
 com\petadoption\dto\RegisterRequest.class
 com\petadoption\controller\PetController.class
 com\petadoption\dto\AuthResponse.class
@@ -24,7 +23,6 @@ com\petadoption\model\RequestStatus.class
 com\petadoption\security\SecurityConfig.class
 com\petadoption\service\PetService.class
 com\petadoption\dto\PetRequest.class
-schema.sql
 com\petadoption\security\JwtAuthenticationFilter.class
 com\petadoption\dto\AdoptionRequestDTO.class
 com\petadoption\dto\RequestStatusUpdateDTO.class
